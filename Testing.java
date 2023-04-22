@@ -12,6 +12,7 @@ public class Testing {
         System.out.printf("%s\n", sporocilo);
     
         Message novoSporocilo = new Message("public", "hacker", "you've been pwned!!!");
+        System.out.printf("%s\n", novoSporocilo);
         JSONObject leteceSporocilo = novoSporocilo.toJson();
         Message prejetoSporocilo = new Message(leteceSporocilo);
         System.out.printf("%s\n", prejetoSporocilo);

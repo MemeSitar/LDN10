@@ -19,7 +19,7 @@ public class Message{
         this.type = (String) obj.get("type");
         this.sender = (String) obj.get("sender");
         this.text = (String) obj.get("message");
-        this.timestamp = Instant.now();
+        this.timestamp = (Instant) obj.get("timestamp");
     }
 
     @SuppressWarnings("unchecked") // TODO lol
