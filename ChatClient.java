@@ -1,15 +1,23 @@
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
+
+import org.json.simple.JSONObject;
 
 public class ChatClient extends Thread
 {
 	protected int serverPort = 8888;
 
+
 	public static void main(String[] args) throws Exception {
-		new ChatClient();
+		Scanner sc = new Scanner(System.in);
+		System.out.printf("Please input username: \n");
+		String username = sc.next();
+		
+		new ChatClient(username);
 	}
 
-	public ChatClient() throws Exception {
+	public ChatClient(String username) throws Exception {
 		Socket socket = null;
 		DataInputStream in = null;
 		DataOutputStream out = null;
@@ -33,7 +41,8 @@ public class ChatClient extends Thread
 		BufferedReader std_in = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
 		while ((userInput = std_in.readLine()) != null) { // read a line from the console
-			this.sendMessage(userInput, out); // send the message to the chat server
+			Message message = new Message("PUBLIC", username, userInput);
+			this.sendMessage(message.toJson(), out); // send the message to the chat server
 		}
 
 		// cleanup
@@ -43,9 +52,9 @@ public class ChatClient extends Thread
 		socket.close();
 	}
 
-	private void sendMessage(String message, DataOutputStream out) {
+	private void sendMessage(JSONObject message, DataOutputStream out) {
 		try {
-			out.writeUTF(message); // send the message to the chat server
+			out.writeUTF(message.toJSONString()); // send the message to the chat server
 			out.flush(); // ensure the message has been sent
 		} catch (IOException e) {
 			System.err.println("[system] could not send message");

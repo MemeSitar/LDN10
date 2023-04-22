@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.json.simple.*;
+import org.json.simple.parser.*;
+
 
 public class ChatServer {
 
@@ -95,10 +97,20 @@ class ChatServerConnector extends Thread {
 			return;
 		}
 
+		JSONParser parser = new JSONParser();
+		
 		while (true) { // infinite loop in which this thread waits for incoming messages and processes them
 			String msg_received;
+			Message message;
+			/*
+			 * TODO
+			 * nekaj je s temle parserjem narobe...
+			 * mogoce poskusi sprintati tojsonstring??
+			 */
 			try {
 				msg_received = in.readUTF(); // read the message from the client
+				JSONObject json = (JSONObject) parser.parse(msg_received); 
+				message = new Message(json);
 			} catch (Exception e) {
 				System.err.println("[system] there was a problem while reading message client on port " + this.socket.getPort() + ", removing client");
 				e.printStackTrace(System.err);
@@ -108,9 +120,9 @@ class ChatServerConnector extends Thread {
 
 			if (msg_received.length() == 0) // invalid message
 				continue;
-
+			System.out.printf("%s\n",message);
 			System.out.println("[RKchat] [" + this.socket.getPort() + "] : " + msg_received); // print the incoming message in the console
-
+			
 			String msg_send = "someone said: " + msg_received.toUpperCase(); // TODO
 
 			try {
