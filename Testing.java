@@ -16,6 +16,7 @@ public class Testing {
         JSONObject leteceSporocilo = novoSporocilo.toJson();
         Message prejetoSporocilo = new Message(leteceSporocilo);
         System.out.printf("%s\n", prejetoSporocilo);
+        System.out.printf("Sent message equals received: %b\n", novoSporocilo.toString().equals(prejetoSporocilo.toString()));
 
     }
 }
