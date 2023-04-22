@@ -3,7 +3,7 @@ import java.net.*;
 
 public class ChatClient extends Thread
 {
-	protected int serverPort = 1234;
+	protected int serverPort = 8888;
 
 	public static void main(String[] args) throws Exception {
 		new ChatClient();

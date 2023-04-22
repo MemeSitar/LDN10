@@ -4,7 +4,7 @@ import java.util.*;
 
 public class ChatServer {
 
-	protected int serverPort = 1234;
+	protected int serverPort = 8888;
 	protected List<Socket> clients = new ArrayList<Socket>(); // list of clients
 
 	public static void main(String[] args) throws Exception {
