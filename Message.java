@@ -13,6 +13,8 @@ public class Message{
     private String receiver;
     private Instant timestamp;
 
+    // TODO tole bi se definitivno dalo narediti z manj konstruktorji, mogoce bom popravil po oddaji ;)
+
     public Message(String type, String sender, String text){
         this.type = type;
         this.sender = sender;
