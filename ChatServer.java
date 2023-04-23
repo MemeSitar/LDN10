@@ -60,7 +60,10 @@ public class ChatServer {
 		Iterator<Socket> i = clients.iterator();
 		while (i.hasNext()) { // iterate through the client list
 			Socket socket = (Socket) i.next(); // get the socket for communicating with this client
-			if (clientUserMap.get(socket) != null){
+			
+			if (clientUserMap.get(socket).equals(message.getSender())){
+				System.out.printf("[system] did not send message to client [%s]: IS SENDER\n", socket.getPort());
+			} else if (clientUserMap.get(socket) != null){
 				try {
 					DataOutputStream out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages to the client
 					out.writeUTF(message.toJSONString()); // send message to the client
@@ -69,7 +72,7 @@ public class ChatServer {
 					e.printStackTrace(System.err);
 				}
 			} else {
-				System.err.printf("[system] could not send message to client [%s]: NO USERNAME.\n", socket.getPort());
+				System.err.printf("[system] could not send message to client [%s]: NO USERNAME\n", socket.getPort());
 			}
 		}
 	}
