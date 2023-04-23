@@ -35,17 +35,38 @@ public class Message{
         return obj;
     }
 
+    public String toJSONString(){
+        JSONObject obj = this.toJson();
+        return obj.toJSONString();
+    }
+
     public String toString(){
+        String rezultat;
         // Zone in Locale sta tukaj kljucna, brez tega ne dela.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault()).withZone(ZoneId.of("UTC"));
-        String rezultat = new String();
-        if (type == "public"){
-            rezultat = String.format("(%s) [%s]:\n> %s",
+
+        if (type.toUpperCase().equals("PUBLIC")){
+            rezultat = String.format("(%s) [%s]:\n> %s\n",
             formatter.format(timestamp), sender, text);
+        } else if (type.toUpperCase().equals("LOGIN")){
+            rezultat = String.format("[%s] (%s) [%s] LOGGED IN\n",
+            type.toUpperCase(), formatter.format(timestamp), sender, text);
+        } else if (type.toUpperCase().equals("PRIVATE")){
+            rezultat = String.format("[%s] (%s) [%s]:\n> %s\n",
+            type.toUpperCase(), formatter.format(timestamp), sender, text);
         } else {
-            rezultat = String.format("[%s] (%s) [%s]:\n> %s",
+            rezultat = String.format("[%s] (%s) [%s]:\n> %s\n",
             type.toUpperCase(), formatter.format(timestamp), sender, text);
         }
+        
         return rezultat;
+    }
+    
+    public String getType(){
+        return this.type.toUpperCase();
+    }
+
+    public String getSender(){
+        return this.sender;
     }
 }
