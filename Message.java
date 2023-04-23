@@ -99,4 +99,8 @@ public class Message{
     public String getSender(){
         return this.sender;
     }
+
+    public String getReceiver(){
+        return this.receiver;
+    }
 }
