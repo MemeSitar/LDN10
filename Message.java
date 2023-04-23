@@ -1,4 +1,5 @@
 import org.json.simple.*;
+import org.json.simple.parser.*;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -23,6 +24,19 @@ public class Message{
         this.sender = (String) obj.get("sender");
         this.text = (String) obj.get("message");
         this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
+    }
+
+    public Message(String JSONString) throws ParseException{
+        JSONParser parser = new JSONParser();
+        JSONObject obj;
+    
+        obj = (JSONObject) parser.parse(JSONString);
+        this.type = (String) obj.get("type");
+        this.sender = (String) obj.get("sender");
+        this.text = (String) obj.get("message");
+        this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
+
+        
     }
 
     @SuppressWarnings("unchecked") // TODO lol

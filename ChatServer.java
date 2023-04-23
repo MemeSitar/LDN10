@@ -54,13 +54,13 @@ public class ChatServer {
 	}
 
 	// send a message to all clients connected to the server
-	public void sendToAllClients(String message) throws Exception {
+	public void sendToAllClients(Message message) throws Exception {
 		Iterator<Socket> i = clients.iterator();
 		while (i.hasNext()) { // iterate through the client list
 			Socket socket = (Socket) i.next(); // get the socket for communicating with this client
 			try {
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages to the client
-				out.writeUTF(message); // send message to the client
+				out.writeUTF(message.toJSONString()); // send message to the client
 			} catch (Exception e) {
 				System.err.println("[system] could not send message to a client");
 				e.printStackTrace(System.err);
@@ -97,36 +97,37 @@ class ChatServerConnector extends Thread {
 			return;
 		}
 
-		JSONParser parser = new JSONParser();
+
 		
 		while (true) { // infinite loop in which this thread waits for incoming messages and processes them
 			String msg_received;
 			Message message;
+			JSONParser parser = new JSONParser();
 			try {
 				msg_received = in.readUTF(); // read the message from the client
 				JSONObject json = (JSONObject) parser.parse(msg_received); 
 				message = new Message(json);
 			} catch (Exception e) {
 				System.err.println("[system] there was a problem while reading message client on port " + this.socket.getPort() + ", removing client");
-				e.printStackTrace(System.err);
+				//e.printStackTrace(System.err);
 				this.server.removeClient(this.socket);
 				return;
 			}
 
 			if (msg_received.length() == 0) // invalid message
 				continue;
-			System.out.printf("[%s]:%s\n", this.socket.getPort(), message);
+			System.out.printf("[%s]:%s", this.socket.getPort(), message.toString());
 			// prints out the raw JSON, for debugging.
 			//System.out.println("[RKchat] [" + this.socket.getPort() + "] : " + msg_received); // print the incoming message in the console
 			
-			String msg_send = "someone said: " + msg_received.toUpperCase(); // TODO
-
-			try {
-				this.server.sendToAllClients(msg_send); // send message to all clients
-			} catch (Exception e) {
-				System.err.println("[system] there was a problem while sending the message to all clients");
-				e.printStackTrace(System.err);
-				continue;
+			if (message.getType().equals("PUBLIC")){
+				try {
+					this.server.sendToAllClients(message); // send message to all clients
+				} catch (Exception e) {
+					System.err.println("[system] there was a problem while sending the message to all clients");
+					e.printStackTrace(System.err);
+					continue;
+				}
 			}
 		}
 	}
