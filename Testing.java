@@ -16,7 +16,19 @@ public class Testing {
         JSONObject leteceSporocilo = novoSporocilo.toJson();
         Message prejetoSporocilo = new Message(leteceSporocilo);
         System.out.printf("%s\n", prejetoSporocilo);
-        System.out.printf("Sent message equals received: %b\n", novoSporocilo.toString().equals(prejetoSporocilo.toString()));
+
+        // testing equality
+
+        String color;
+        if (novoSporocilo.toString().equals(prejetoSporocilo.toString())){
+            color = "[32m";
+        } else {
+            color = "[31m";
+        }
+        System.out.printf((char)27 + color + "Sent message equals received: %b\n",
+         novoSporocilo.toString().equals(prejetoSporocilo.toString()));
+        
+        System.out.println((char)27 + "[39m");
 
     }
 }
