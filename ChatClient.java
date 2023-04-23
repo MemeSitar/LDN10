@@ -2,9 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
-import org.json.simple.parser.*;
-import org.json.simple.*;
-
 public class ChatClient extends Thread
 {
 	protected int serverPort = 8888;
