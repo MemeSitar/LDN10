@@ -85,7 +85,7 @@ class ChatClientMessageReceiver extends Thread {
 			Message message;
 			while ((msg_received = this.in.readUTF()) != null) { // read new message (from DataInputStream)
 				message = new Message(msg_received);
-				System.out.println(message); // print the message to the console
+				System.out.printf("%s", message); // print the message to the console
 			}
 		} catch (Exception e) {
 			System.err.println("[system] could not read message");
