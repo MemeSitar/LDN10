@@ -46,8 +46,21 @@ public class ChatClient extends Thread
 		BufferedReader std_in = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
 		while ((userInput = std_in.readLine()) != null) { // read a line from the console
-			Message message = new Message("PUBLIC", username, userInput);
-			this.sendMessage(message, out); // send the message to the chat server
+
+			if (userInput.substring(0, 1).equals("@")){ // if message is private
+				System.out.printf("THIS IS A PRIVATE MESSAGE\n");
+				int startOfUsername = userInput.indexOf("[");
+				int endOfUsername = userInput.indexOf("]");
+				String receiver = userInput.substring(startOfUsername + 1, endOfUsername);
+				System.out.printf("THE RECEIVER IS: %s\n", receiver);
+				Message message = new Message("PRIVATE",
+				 username, receiver, userInput.substring(endOfUsername + 1));
+				this.sendMessage(message, out);
+
+			} else { // message is public
+				Message message = new Message("PUBLIC", username, userInput);
+				this.sendMessage(message, out); // send the message to the chat server
+			}
 		}
 
 		// cleanup

@@ -10,6 +10,7 @@ public class Message{
     private String type;
     private String sender;
     private String text;
+    private String receiver;
     private Instant timestamp;
 
     public Message(String type, String sender, String text){
@@ -19,9 +20,18 @@ public class Message{
         this.timestamp = Instant.now();
     }
 
+    public Message(String type, String sender, String receiver, String text){
+        this.type = type;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.text = text;
+        this.timestamp = Instant.now();
+    }
+
     public Message(JSONObject obj){
         this.type = (String) obj.get("type");
         this.sender = (String) obj.get("sender");
+        this.receiver = (String) obj.get("receiver");
         this.text = (String) obj.get("message");
         this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
     }
@@ -33,6 +43,7 @@ public class Message{
         obj = (JSONObject) parser.parse(JSONString);
         this.type = (String) obj.get("type");
         this.sender = (String) obj.get("sender");
+        this.receiver = (String) obj.get("receiver");
         this.text = (String) obj.get("message");
         this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
 
@@ -44,6 +55,7 @@ public class Message{
         JSONObject obj = new JSONObject();
         obj.put("type", type);
         obj.put("sender", sender);
+        obj.put("receiver", receiver);
         obj.put("message", text);
         obj.put("timestamp", timestamp.toString());
         return obj;
@@ -66,16 +78,17 @@ public class Message{
             rezultat = String.format("[%s] (%s) [%s] LOGGED IN\n",
             type.toUpperCase(), formatter.format(timestamp), sender, text);
         } else if (type.toUpperCase().equals("PRIVATE")){
-            rezultat = String.format("[%s] (%s) [%s]:\n> %s\n",
-            type.toUpperCase(), formatter.format(timestamp), sender, text);
+            rezultat = String.format("[%s] (%s) [%s] -> [%s]:\n> %s\n",
+            type.toUpperCase(), formatter.format(timestamp), sender, receiver, text);
         } else if (type.toUpperCase().equals("JOIN") || type.toUpperCase().equals("LEAVE")){
             rezultat = String.format("[%s] (%s) [%s]:\n> @%s %s\n",
             type.toUpperCase(), formatter.format(timestamp), "system", sender, text);
+            System.out.printf("meow\n");
         } else {
             rezultat = String.format("[%s] (%s) [%s]:\n> %s\n",
             type.toUpperCase(), formatter.format(timestamp), sender, text);
         }
-        
+
         return rezultat;
     }
     
