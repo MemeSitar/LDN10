@@ -76,23 +76,37 @@ public class ChatServer {
 	}
 
 	public void removeClient(Socket socket) {
+		Message leftNotification;
+
 		synchronized(this) {
 			clients.remove(socket);
+			String removedUser = clientUserMap.remove(socket);
+
+			leftNotification = new Message("LEAVE", removedUser, "left the chat");
+			try {
+				this.sendToAllClients(leftNotification); // send message to all clients
+			} catch (Exception e) {
+				System.err.println("[system] there was a problem while sending the message to all clients");
+				e.printStackTrace(System.err);
+			}			
 		}
 	}
 
 	public void addUsernameToMap(Socket socket, String username){
-		Message notification;
-		if (clientUserMap.get(socket) == null){
-			clientUserMap.replace(socket, username);
-			System.out.printf("[system] client [%s] assigned username [%s]\n", socket.getPort(), username);
-			
-			notification = new Message("JOIN", username, "Joined the chat");
-			try {
-				this.sendToAllClients(notification); // send message to all clients
-			} catch (Exception e) {
-				System.err.println("[system] there was a problem while sending the message to all clients");
-				e.printStackTrace(System.err);
+		Message joinNotification;
+
+		synchronized(this){
+			if (clientUserMap.get(socket) == null){
+				clientUserMap.replace(socket, username);
+				System.out.printf("[system] client [%s] assigned username [%s]\n", socket.getPort(), username);
+				
+				joinNotification = new Message("JOIN", username, "joined the chat");
+				try {
+					this.sendToAllClients(joinNotification); // send message to all clients
+				} catch (Exception e) {
+					System.err.println("[system] there was a problem while sending the message to all clients");
+					e.printStackTrace(System.err);
+				}
 			}
 		}
 	}
