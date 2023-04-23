@@ -10,11 +10,12 @@ public class ChatClient extends Thread
 
 
 	public static void main(String[] args) throws Exception {
-		Scanner sc = new Scanner(System.in);
-		System.out.printf("Please input username: \n");
-		String username = sc.next();
-		
-		new ChatClient(username);
+		try (Scanner sc = new Scanner(System.in)) {
+			System.out.printf("Please input username: \n");
+			String username = sc.next();
+			
+			new ChatClient(username);
+		}
 	}
 
 	public ChatClient(String username) throws Exception {
@@ -28,6 +29,10 @@ public class ChatClient extends Thread
 			socket = new Socket("localhost", serverPort); // create socket connection
 			in = new DataInputStream(socket.getInputStream()); // create input stream for listening for incoming messages
 			out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages
+
+			Message loginMessage = new Message("LOGIN", username, "");
+			this.sendMessage(loginMessage.toJson(), out);
+			
 			System.out.println("[system] connected");
 
 			ChatClientMessageReceiver message_receiver = new ChatClientMessageReceiver(in); // create a separate thread for listening to messages from the chat server

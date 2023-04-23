@@ -102,11 +102,6 @@ class ChatServerConnector extends Thread {
 		while (true) { // infinite loop in which this thread waits for incoming messages and processes them
 			String msg_received;
 			Message message;
-			/*
-			 * TODO
-			 * nekaj je s temle parserjem narobe...
-			 * mogoce poskusi sprintati tojsonstring??
-			 */
 			try {
 				msg_received = in.readUTF(); // read the message from the client
 				JSONObject json = (JSONObject) parser.parse(msg_received); 
@@ -120,8 +115,9 @@ class ChatServerConnector extends Thread {
 
 			if (msg_received.length() == 0) // invalid message
 				continue;
-			System.out.printf("%s\n",message);
-			System.out.println("[RKchat] [" + this.socket.getPort() + "] : " + msg_received); // print the incoming message in the console
+			System.out.printf("[%s]:%s\n", this.socket.getPort(), message);
+			// prints out the raw JSON, for debugging.
+			//System.out.println("[RKchat] [" + this.socket.getPort() + "] : " + msg_received); // print the incoming message in the console
 			
 			String msg_send = "someone said: " + msg_received.toUpperCase(); // TODO
 
