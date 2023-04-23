@@ -68,6 +68,9 @@ public class Message{
         } else if (type.toUpperCase().equals("PRIVATE")){
             rezultat = String.format("[%s] (%s) [%s]:\n> %s\n",
             type.toUpperCase(), formatter.format(timestamp), sender, text);
+        } else if (type.toUpperCase().equals("JOIN")){
+            rezultat = String.format("[%s] (%s) [%s]:\n> @%s joined the chat\n",
+            type.toUpperCase(), formatter.format(timestamp), "system", this.sender);
         } else {
             rezultat = String.format("[%s] (%s) [%s]:\n> %s\n",
             type.toUpperCase(), formatter.format(timestamp), sender, text);
