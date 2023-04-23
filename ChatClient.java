@@ -9,6 +9,7 @@ public class ChatClient extends Thread
 
 	public static void main(String[] args) throws Exception {
 		String username;
+		
 		// DO NOT FIX THIS IT BREAKS THE CLIENT
 		@SuppressWarnings({ "resource" }) 
 		Scanner sc = new Scanner(System.in);
@@ -47,19 +48,29 @@ public class ChatClient extends Thread
 		String userInput;
 		while ((userInput = std_in.readLine()) != null) { // read a line from the console
 
-			if (userInput.substring(0, 1).equals("@")){ // if message is private
-				System.out.printf("THIS IS A PRIVATE MESSAGE\n");
-				int startOfUsername = userInput.indexOf("[");
+			if (userInput.length() > 1 && userInput.substring(0, 1).equals("@")
+				 && userInput.indexOf("[") != -1 && userInput.indexOf("]") != -1){ 
+				// if message is private
+				// also checks that other strings still come through
 				int endOfUsername = userInput.indexOf("]");
-				String receiver = userInput.substring(startOfUsername + 1, endOfUsername);
-				System.out.printf("THE RECEIVER IS: %s\n", receiver);
-				Message message = new Message("PRIVATE",
-				 username, receiver, userInput.substring(endOfUsername + 1));
-				this.sendMessage(message, out);
+				String receiver = userInput.substring(userInput.indexOf("[") + 1, endOfUsername);
+
+				//! THIS IS HERE FOR DEBUGGING
+				//*System.out.printf("THIS IS A PRIVATE MESSAGE\n");
+				//*System.out.printf("THE RECEIVER IS: %s\n", receiver);
+
+				// catches out of bounds exceptions.
+				try {
+					Message message = new Message("PRIVATE",
+					 username, receiver, userInput.substring(endOfUsername + 1));
+					this.sendMessage(message, out);
+				} catch (Exception e) {
+					e.printStackTrace(System.err);
+				}
 
 			} else { // message is public
 				Message message = new Message("PUBLIC", username, userInput);
-				this.sendMessage(message, out); // send the message to the chat server
+				this.sendMessage(message, out);
 			}
 		}
 

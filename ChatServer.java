@@ -75,6 +75,41 @@ public class ChatServer {
 		}
 	}
 
+	public void privateSendToClient(Message message, Socket senderSocket){
+		Iterator<Socket> i = clients.iterator();
+		while (i.hasNext()) { // iterate through the client list
+			Socket socket = (Socket) i.next();
+			if (clientUserMap.get(socket).equals(message.getReceiver())){
+				try {
+					DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+					out.writeUTF(message.toJSONString()); // send message to the client
+				} catch (Exception e) {
+					System.err.printf("[system] could not send message to client [%s]\n", socket.getPort());
+					e.printStackTrace(System.err);
+				}
+				return;
+			}
+		}
+		System.err.printf("[system] could not send message to client [%s]: RECEIVING CLIENT NOT FOUND\n",
+		 message.getReceiver());
+		String errorText = String.format("Client [%s] not found", message.getReceiver());
+		Message errorMessage = new Message("ERROR", "system", errorText);
+		sendErrorToClient(errorMessage, senderSocket);
+	}
+
+	public void sendErrorToClient(Message message, Socket senderSocket){
+
+		//? multiple types of errors in one method?//
+
+		try {
+			DataOutputStream out = new DataOutputStream(senderSocket.getOutputStream());
+			out.writeUTF(message.toJSONString()); // send message to the client
+		} catch (Exception e) {
+			System.err.printf("[system] could not send message to client [%s]\n", senderSocket.getPort());
+			e.printStackTrace(System.err);
+		}
+	}
+
 	public void removeClient(Socket socket) {
 		Message leftNotification;
 
@@ -166,6 +201,9 @@ class ChatServerConnector extends Thread {
 			}
 			if (message.getType().equals("LOGIN")){
 				this.server.addUsernameToMap(this.socket, message.getSender());
+			}
+			if (message.getType().equals("PRIVATE")){
+				this.server.privateSendToClient(message, this.socket);
 			}
 		}
 	}
