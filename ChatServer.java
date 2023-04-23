@@ -9,6 +9,7 @@ public class ChatServer {
 
 	protected int serverPort = 8888;
 	protected List<Socket> clients = new ArrayList<Socket>(); // list of clients
+	protected Map<Socket, String> clientUserMap = new HashMap<Socket, String>();
 
 	public static void main(String[] args) throws Exception {
 		new ChatServer();
@@ -33,6 +34,7 @@ public class ChatServer {
 				Socket newClientSocket = serverSocket.accept(); // wait for a new client connection
 				synchronized(this) {
 					clients.add(newClientSocket); // add client to the list of clients
+					clientUserMap.put(newClientSocket, null);
 				}
 				ChatServerConnector conn = new ChatServerConnector(this, newClientSocket); // create a new thread for communication with the new client
 				conn.start(); // run the new thread
@@ -58,12 +60,16 @@ public class ChatServer {
 		Iterator<Socket> i = clients.iterator();
 		while (i.hasNext()) { // iterate through the client list
 			Socket socket = (Socket) i.next(); // get the socket for communicating with this client
-			try {
-				DataOutputStream out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages to the client
-				out.writeUTF(message.toJSONString()); // send message to the client
-			} catch (Exception e) {
-				System.err.println("[system] could not send message to a client");
-				e.printStackTrace(System.err);
+			if (clientUserMap.get(socket) != null){
+				try {
+					DataOutputStream out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages to the client
+					out.writeUTF(message.toJSONString()); // send message to the client
+				} catch (Exception e) {
+					System.err.printf("[system] could not send message to client [%s]\n", socket.getPort());
+					e.printStackTrace(System.err);
+				}
+			} else {
+				System.err.printf("[system] could not send message to client [%s]: NO USERNAME.\n", socket.getPort());
 			}
 		}
 	}
@@ -71,6 +77,13 @@ public class ChatServer {
 	public void removeClient(Socket socket) {
 		synchronized(this) {
 			clients.remove(socket);
+		}
+	}
+
+	public void addUsernameToMap(Socket socket, String username){
+		if (clientUserMap.get(socket) == null){
+			clientUserMap.replace(socket, username);
+			System.out.printf("[system] client [%s] assigned username [%s]\n", socket.getPort(), username);
 		}
 	}
 }
@@ -126,6 +139,9 @@ class ChatServerConnector extends Thread {
 					e.printStackTrace(System.err);
 					continue;
 				}
+			}
+			if (message.getType().equals("LOGIN")){
+				this.server.addUsernameToMap(this.socket, message.getSender());
 			}
 		}
 	}
