@@ -102,11 +102,9 @@ class ChatServerConnector extends Thread {
 		while (true) { // infinite loop in which this thread waits for incoming messages and processes them
 			String msg_received;
 			Message message;
-			JSONParser parser = new JSONParser();
 			try {
 				msg_received = in.readUTF(); // read the message from the client
-				JSONObject json = (JSONObject) parser.parse(msg_received); 
-				message = new Message(json);
+				message = new Message(msg_received);
 			} catch (Exception e) {
 				System.err.println("[system] there was a problem while reading message client on port " + this.socket.getPort() + ", removing client");
 				//e.printStackTrace(System.err);

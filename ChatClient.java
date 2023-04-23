@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
-import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.*;
 import org.json.simple.*;
 
 public class ChatClient extends Thread
@@ -13,6 +13,7 @@ public class ChatClient extends Thread
 	public static void main(String[] args) throws Exception {
 		String username;
 		// DO NOT FIX THIS IT BREAKS THE CLIENT
+		@SuppressWarnings({ "resource" }) 
 		Scanner sc = new Scanner(System.in);
 			System.out.printf("Please input username: \n");
 			username = sc.next();
@@ -80,12 +81,10 @@ class ChatClientMessageReceiver extends Thread {
 
 	public void run() {
 		try {
-			JSONParser parser = new JSONParser();
 			String msg_received;
 			Message message;
 			while ((msg_received = this.in.readUTF()) != null) { // read new message (from DataInputStream)
-				JSONObject json = (JSONObject) parser.parse(msg_received); 
-				message = new Message(json);
+				message = new Message(msg_received);
 				System.out.println(message); // print the message to the console
 			}
 		} catch (Exception e) {
