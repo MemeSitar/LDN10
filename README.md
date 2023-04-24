@@ -6,8 +6,8 @@ Domaca naloga za RK, sprogramirati je treba vtice v javi.
 ## Uporaba
  - vse skupaj se compilea z `./compileScript.sh`
  - če `json-simple-1.1.1.jar` ni v PATH, je treba v vsakem shellu v katerem se ChatClient ali ChatServer odpre zagnati še `. envExport.sh`  
- - server se prižge z `java ChatServer`
- - client(i) se prižgejo z `java ChatClient`
+ - server se prižge z `java -cp json-simple-1.1.1.jar:. ChatServer`
+ - client(i) se prižgejo z `java -cp json-simple-1.1.1.jar:. ChatClient`
  - ko je client prižgan pričakuje vpisano eno-besedno uporabniško ime.
  - client potem posluša na stdin. 
  - karkoli je napisano v stdin in se konča z newline je poslano kot `[PUBLIC]`, torej vsem v chatu.
