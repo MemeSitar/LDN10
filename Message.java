@@ -32,14 +32,17 @@ public class Message{
         this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
     }
 
-    public Message Message(String JSONString) throws ParseException{
-
+    public Message(String JSONString) throws ParseException{
         JSONParser parser = new JSONParser();
         JSONObject obj;
     
         obj = (JSONObject) parser.parse(JSONString);
-        Message message = new Message(obj);
-        return message;
+        this.type = (String) obj.get("type");
+        this.sender = (String) obj.get("sender");
+        this.receiver = (String) obj.get("receiver");
+        this.text = (String) obj.get("message");
+        this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
+
         
     }
 
