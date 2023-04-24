@@ -15,12 +15,6 @@ public class Message{
 
     // TODO tole bi se definitivno dalo narediti z manj konstruktorji, mogoce bom popravil po oddaji ;)
 
-    public Message(String type, String sender, String text){
-        this.type = type;
-        this.sender = sender;
-        this.text = text;
-        this.timestamp = Instant.now();
-    }
 
     public Message(String type, String sender, String receiver, String text){
         this.type = type;
@@ -38,17 +32,14 @@ public class Message{
         this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
     }
 
-    public Message(String JSONString) throws ParseException{
+    public Message Message(String JSONString) throws ParseException{
+
         JSONParser parser = new JSONParser();
         JSONObject obj;
     
         obj = (JSONObject) parser.parse(JSONString);
-        this.type = (String) obj.get("type");
-        this.sender = (String) obj.get("sender");
-        this.receiver = (String) obj.get("receiver");
-        this.text = (String) obj.get("message");
-        this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
-
+        Message message = new Message(obj);
+        return message;
         
     }
 
@@ -94,6 +85,8 @@ public class Message{
         return rezultat;
     }
     
+
+    // getterji
     public String getType(){
         return this.type.toUpperCase();
     }

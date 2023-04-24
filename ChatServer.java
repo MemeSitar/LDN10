@@ -93,7 +93,7 @@ public class ChatServer {
 		System.err.printf("[system] could not send message to client [%s]: RECEIVING CLIENT NOT FOUND\n",
 		 message.getReceiver());
 		String errorText = String.format("Client [%s] not found", message.getReceiver());
-		Message errorMessage = new Message("ERROR", "system", errorText);
+		Message errorMessage = new Message("ERROR", "system", null, errorText);
 		sendErrorToClient(errorMessage, senderSocket);
 	}
 
@@ -117,7 +117,7 @@ public class ChatServer {
 			clients.remove(socket);
 			String removedUser = clientUserMap.remove(socket);
 
-			leftNotification = new Message("LEAVE", removedUser, "left the chat");
+			leftNotification = new Message("LEAVE", removedUser, null, "left the chat");
 			try {
 				this.sendToAllClients(leftNotification); // send message to all clients
 			} catch (Exception e) {
@@ -135,7 +135,7 @@ public class ChatServer {
 				clientUserMap.replace(socket, username);
 				System.out.printf("[system] client [%s] assigned username [%s]\n", socket.getPort(), username);
 				
-				joinNotification = new Message("JOIN", username, "joined the chat");
+				joinNotification = new Message("JOIN", username, null, "joined the chat");
 				try {
 					this.sendToAllClients(joinNotification); // send message to all clients
 				} catch (Exception e) {

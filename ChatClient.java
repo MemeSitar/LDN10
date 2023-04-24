@@ -31,7 +31,7 @@ public class ChatClient extends Thread
 			in = new DataInputStream(socket.getInputStream()); // create input stream for listening for incoming messages
 			out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages
 
-			Message loginMessage = new Message("LOGIN", username, "");
+			Message loginMessage = new Message("LOGIN", username, null, "");
 			this.sendMessage(loginMessage, out);
 			
 			System.out.println("[system] connected");
@@ -69,7 +69,7 @@ public class ChatClient extends Thread
 				}
 
 			} else { // message is public
-				Message message = new Message("PUBLIC", username, userInput);
+				Message message = new Message("PUBLIC", username, null, userInput);
 				this.sendMessage(message, out);
 			}
 		}

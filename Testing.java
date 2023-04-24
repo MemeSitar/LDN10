@@ -7,11 +7,11 @@ public class Testing {
     }
     
     public static void stestirajJSONSporocila(){
-        Message sporocilo = new Message("public", "meow", "this is a test message.");
+        Message sporocilo = new Message("public", "meow", null, "this is a test message.");
     
         System.out.printf("%s\n", sporocilo);
     
-        Message novoSporocilo = new Message("public", "hacker", "you've been pwned!!!");
+        Message novoSporocilo = new Message("public", "hacker", null, "you've been pwned!!!");
         System.out.printf("%s\n", novoSporocilo);
         JSONObject leteceSporocilo = novoSporocilo.toJson();
         Message prejetoSporocilo = new Message(leteceSporocilo);
