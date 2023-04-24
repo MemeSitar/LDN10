@@ -15,35 +15,28 @@ public class Message{
 
     // TODO tole bi se definitivno dalo narediti z manj konstruktorji, mogoce bom popravil po oddaji ;)
 
-
-    public Message(String type, String sender, String receiver, String text){
+    public Message(String type, String sender, String receiver, String text, Instant timestamp){
         this.type = type;
         this.sender = sender;
         this.receiver = receiver;
         this.text = text;
-        this.timestamp = Instant.now();
+        this.timestamp = timestamp;
     }
 
-    public Message(JSONObject obj){
-        this.type = (String) obj.get("type");
-        this.sender = (String) obj.get("sender");
-        this.receiver = (String) obj.get("receiver");
-        this.text = (String) obj.get("message");
-        this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
+    public Message(String type, String sender, String receiver, String text){
+        this(type, sender, receiver, text, Instant.now());
     }
 
-    public Message(String JSONString) throws ParseException{
+    public static Message fromJSON(String JSONString) throws ParseException{
         JSONParser parser = new JSONParser();
         JSONObject obj;
     
         obj = (JSONObject) parser.parse(JSONString);
-        this.type = (String) obj.get("type");
-        this.sender = (String) obj.get("sender");
-        this.receiver = (String) obj.get("receiver");
-        this.text = (String) obj.get("message");
-        this.timestamp = (Instant) Instant.parse((String) obj.get("timestamp"));
-
-        
+        return new Message((String) obj.get("type"),
+         (String) obj.get("sender"),
+         (String) obj.get("receiver"),
+         (String) obj.get("message"),
+         (Instant) Instant.parse((String) obj.get("timestamp")));
     }
 
     @SuppressWarnings("unchecked") // TODO lol

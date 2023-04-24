@@ -105,7 +105,7 @@ class ChatClientMessageReceiver extends Thread {
 			String msg_received;
 			Message message;
 			while ((msg_received = this.in.readUTF()) != null) { // read new message (from DataInputStream)
-				message = new Message(msg_received);
+				message = Message.fromJSON(msg_received);
 				System.out.printf("%s", message); // print the message to the console
 			}
 		} catch (Exception e) {

@@ -176,7 +176,7 @@ class ChatServerConnector extends Thread {
 			Message message;
 			try {
 				msg_received = in.readUTF(); // read the message from the client
-				message = new Message(msg_received);
+				message = Message.fromJSON(msg_received);
 			} catch (Exception e) {
 				System.err.println("[system] there was a problem while reading message client on port " + this.socket.getPort() + ", removing client");
 				//e.printStackTrace(System.err);
