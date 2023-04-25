@@ -75,13 +75,14 @@ public class ChatClient extends Thread
 				//*System.out.printf("THIS IS A PRIVATE MESSAGE\n");
 				//*System.out.printf("THE RECEIVER IS: %s\n", receiver);
 	
-				// catches out of bounds exceptions.
+				// catches out of bounds exceptions. (invalid PMs)
 				try {
 					Message message = new Message("PRIVATE",
-					 this.username, receiver, userInput.substring(endOfUsername + 1));
+					 this.username, receiver, userInput.substring(endOfUsername + 1).trim());
 					this.sendMessage(message, out);
 				} catch (Exception e) {
-					e.printStackTrace(System.err);
+					System.out.printf("[system] invalid private message\n");
+					//e.printStackTrace(System.err);
 				}
 	
 			} else { // message is public
