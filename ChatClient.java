@@ -93,6 +93,9 @@ public class ChatClient extends Thread
 	}
 
 	private void sendMessage(Message message, DataOutputStream out) {
+		if (message.isOnlyWhitespace()){
+			return;
+		}
 		try {
 			out.writeUTF(message.toJSONString()); // send the message to the chat server
 			out.flush(); // ensure the message has been sent

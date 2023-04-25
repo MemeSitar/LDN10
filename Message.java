@@ -94,4 +94,15 @@ public class Message{
     public String getReceiver(){
         return this.receiver;
     }
+
+    //  This is probably a stupid way to do this
+    // since it has to be updated every time a message would be added
+    
+    public boolean isOnlyWhitespace(){
+        if (this.type.toUpperCase().equals("PUBLIC") || this.type.toUpperCase().equals("PRIVATE")){
+            return this.text.trim().isEmpty();
+        } else {
+            return false;
+        }
+    }
 }
