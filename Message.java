@@ -13,9 +13,17 @@ public class Message{
     private String receiver;
     private Instant timestamp;
 
-    // TODO tole bi se definitivno dalo narediti z manj konstruktorji, mogoce bom popravil po oddaji ;)
+    /* Message types:
+     - PUBLIC
+     - PRIVATE
+     - LOGIN
+     - JOIN
+     - LEAVE
+     - ERROR
+     - STOP
+     */
 
-    public Message(String type, String sender, String receiver, String text, Instant timestamp){
+    private Message(String type, String sender, String receiver, String text, Instant timestamp){
         this.type = type;
         this.sender = sender;
         this.receiver = receiver;
