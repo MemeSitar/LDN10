@@ -15,6 +15,7 @@ public class ChatServer {
 
 	public ChatServer() {
 		ServerSocket serverSocket = null;
+		CommandLineListener cliListener = null;
 
 		// create socket
 		try {
@@ -25,8 +26,12 @@ public class ChatServer {
 			System.exit(1);
 		}
 
+		cliListener = new CommandLineListener(this);
+		cliListener.start();
+
 		// start listening for new connections
 		System.out.println("[system] listening ...");
+		
 		try {
 			while (true) {
 				Socket newClientSocket = serverSocket.accept(); // wait for a new client connection
@@ -54,7 +59,7 @@ public class ChatServer {
 	}
 
 	// send a message to all clients connected to the server
-	public void sendToAllClients(Message message) throws Exception {
+	public void sendToAllClients(Message message) {
 		Iterator<Socket> i = clients.iterator();
 		while (i.hasNext()) { // iterate through the client list
 			Socket socket = (Socket) i.next(); // get the socket for communicating with this client
@@ -145,6 +150,36 @@ public class ChatServer {
 			}
 		}
 	}
+
+	public void stopAllClients(){
+		Message stopMessage;
+		
+		stopMessage = new Message("STOP", 
+		 "server", 
+		 null, 
+		 "Session ended, server closing.");
+
+		Iterator<Socket> i = clients.iterator();
+		while (i.hasNext()) { // iterate through the client list
+			Socket socket = (Socket) i.next(); // get the socket for communicating with this client
+			
+			try {
+				DataOutputStream out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages to the client
+				out.writeUTF(stopMessage.toJSONString()); // send message to the client
+			} catch (Exception e) {
+				System.err.printf("[system] could not send message to client [%s]\n", socket.getPort());
+				e.printStackTrace(System.err);
+			}
+
+			clients.remove(socket);
+			clientUserMap.remove(socket);
+		}
+	}
+
+	public void stopServer(){
+		// code for closing all sockets?
+		System.exit(0);
+	}
 }
 
 class ChatServerConnector extends Thread {
@@ -205,6 +240,31 @@ class ChatServerConnector extends Thread {
 			if (message.getType().equals("PRIVATE")){
 				this.server.privateSendToClient(message, this.socket);
 			}
+		}
+	}
+}
+
+class CommandLineListener extends Thread{
+	private ChatServer server;
+
+	public CommandLineListener(ChatServer server){
+		this.server = server;
+	}
+
+	public void run(){
+		String userInput;
+		try {
+			BufferedReader std_in = new BufferedReader(new InputStreamReader(System.in));
+			while ((userInput = std_in.readLine()) != null){
+				// listen to command line;
+				if (userInput.equals("stop()")){
+					server.stopAllClients();
+					server.stopServer();
+				}
+			}
+			std_in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
