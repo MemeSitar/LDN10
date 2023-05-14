@@ -1,7 +1,7 @@
-# LDN7
+# LDN10
 ## Programiranje vticev
 ---
-Domaca naloga za RK, sprogramirati je treba vtice v javi.  
+Domaca naloga za RK, LDN7 je potrebno dodati SSL podporo.
 
 ## Uporaba
  - vse skupaj se compilea z `./compileScript.sh`
@@ -22,3 +22,5 @@ Domaca naloga za RK, sprogramirati je treba vtice v javi.
 
 ## Viri
 https://rkvaje.lrk.si/T07/T07.html
+https://rkvaje.lrk.si/T10/T10.html
+https://ucilnica.fri.uni-lj.si/mod/assign/view.php?id=15186
