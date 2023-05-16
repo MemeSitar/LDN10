@@ -1,6 +1,14 @@
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
+import javax.net.ssl.*;
+import java.security.*;
+import java.util.*;
+
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
 public class ChatClient extends Thread
 {
@@ -9,33 +17,66 @@ public class ChatClient extends Thread
 
 
 	public static void main(String[] args) throws Exception {
-		String username;
+		String passphrase;
+		String keyStoreName;
 		
 		// DO NOT FIX THIS IT BREAKS THE CLIENT
 		@SuppressWarnings({ "resource" }) 
 		Scanner sc = new Scanner(System.in);
-			System.out.printf("Please input username: \n");
-			username = sc.next();
+		System.out.printf("Please input certificate file name: \n");
+		keyStoreName = sc.next();
+		System.out.printf("Please input certificate file password: \n");
+		passphrase = sc.next();
 		
-		new ChatClient(username);
+		new ChatClient(keyStoreName, passphrase);
 	}
 
-	public ChatClient(String username) throws Exception {
-		Socket socket = null;
+	public ChatClient(String keyStoreName, String passphrase) throws Exception {
+		SSLSocket socket = null;
 		DataInputStream in = null;
 		DataOutputStream out = null;
-		this.username = username;
 		ChatClientMessageReceiver message_receiver = null;
+
+		// preberi datoteko s  certifikatom
+		KeyStore serverKeyStore = KeyStore.getInstance("JKS");
+		serverKeyStore.load(new FileInputStream("server.public"), "public".toCharArray());
+
+		// preberi datoteko s svojim certifikatom 
+		KeyStore clientKeyStore = KeyStore.getInstance("JKS");
+		clientKeyStore.load(new FileInputStream(keyStoreName), passphrase.toCharArray());
+
+		// vzpostavi SSL kontekst (komu zaupamo, 
+		TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+		tmf.init(serverKeyStore);
+		KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+		kmf.init(clientKeyStore, passphrase.toCharArray());
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), (new SecureRandom()));
+
+
+		Enumeration<String> enumerator = clientKeyStore.aliases();
+		String alias = enumerator.nextElement();
+		Certificate[] chain = clientKeyStore.getCertificateChain(alias);
+		X509Certificate cert = (X509Certificate) chain[0];
+		String dn = cert.getSubjectX500Principal().toString();
+		this.username = dn.substring(3);
+		System.out.println(username);
+
 
 		// connect to the chat server
 		try {
 			System.out.println("[system] connecting to chat server ...");
-			socket = new Socket("localhost", serverPort); // create socket connection
+
+			SSLSocketFactory sf = sslContext.getSocketFactory();
+			socket = (SSLSocket) sf.createSocket("localhost", serverPort);
+			socket.setEnabledCipherSuites(new String[] { "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256" }); // dovoljeni nacin kriptiranja (CipherSuite)
+			socket.startHandshake(); // eksplicitno sprozi SSL Handshake
+
 			in = new DataInputStream(socket.getInputStream()); // create input stream for listening for incoming messages
 			out = new DataOutputStream(socket.getOutputStream()); // create output stream for sending messages
 
-			Message loginMessage = new Message("LOGIN", username, null, "");
-			this.sendMessage(loginMessage, out);
+			//Message loginMessage = new Message("LOGIN", username, null, "");
+			//this.sendMessage(loginMessage, out);
 			
 			System.out.println("[system] connected");
 
