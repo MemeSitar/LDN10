@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.net.ssl.*;
+import java.security.*;
 
 
 public class ChatServer {
@@ -8,31 +10,73 @@ public class ChatServer {
 	protected int serverPort = 8888;
 	protected List<Socket> clients = new ArrayList<Socket>(); // list of clients
 	protected Map<Socket, String> clientUserMap = new HashMap<Socket, String>();
+	String passphrase = "serverpwd";
 
 	public static void main(String[] args) throws Exception {
 		new ChatServer();
 	}
 
 	public ChatServer() {
-		ServerSocket serverSocket = null;
+		SSLServerSocket serverSocket = null;
+		SSLContext sslContext = null;
+
+		try {
+			// preberi datoteko z odjemalskimi certifikati
+			KeyStore clientKeyStore = KeyStore.getInstance("JKS"); // KeyStore za shranjevanje odjemalevih javnih(certifikatov)
+			clientKeyStore.load(new FileInputStream("client.public"), "public".toCharArray());
+
+			// preberi datoteko s svojim certifikatom in tajnim kljum
+			KeyStore serverKeyStore = KeyStore.getInstance("JKS"); // KeyStore za shranjevanje  tajnega in javnega 
+			serverKeyStore.load(new FileInputStream("server.private"), passphrase.toCharArray());
+
+			// vzpostavi SSL kontekst (komu zaupamo,in certifikati)
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+			tmf.init(clientKeyStore);
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+			kmf.init(serverKeyStore, passphrase.toCharArray());
+			sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), (new SecureRandom()));
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+			System.exit(1);
+		}
+
 
 		// create socket
 		try {
-			serverSocket = new ServerSocket(this.serverPort); // create the ServerSocket
+			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
+			serverSocket = (SSLServerSocket) factory.createServerSocket(this.serverPort);
+			serverSocket.setNeedClientAuth(true); // tudi odjemalec se MORA predstaviti s certifikatom
+			serverSocket.setEnabledCipherSuites(new String[] {"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"});
 		} catch (Exception e) {
 			System.err.println("[system] could not create socket on port " + this.serverPort);
 			e.printStackTrace(System.err);
 			System.exit(1);
 		}
-
+		
 		// start listening for new connections
 		System.out.println("[system] listening ...");
 		try {
 			while (true) {
 				Socket newClientSocket = serverSocket.accept(); // wait for a new client connection
+				((SSLSocket) newClientSocket).startHandshake(); 
+				String username = ((SSLSocket) newClientSocket).getSession().getPeerPrincipal().getName().substring(3);
+				System.out.println("Client connected with name " + username);
 				synchronized(this) {
 					clients.add(newClientSocket); // add client to the list of clients
-					clientUserMap.put(newClientSocket, null);
+					clientUserMap.put(newClientSocket, username);
+
+					Message joinNotification;
+					//System.out.printf("[system] client [%s] assigned username [%s]\n", socket.getPort(), username);
+					
+					joinNotification = new Message("JOIN", username, null, "joined the chat");
+					try {
+						this.sendToAllClients(joinNotification); // send message to all clients
+					} catch (Exception e) {
+						System.err.println("[system] there was a problem while sending the message to all clients");
+						e.printStackTrace(System.err);
+					}
+					
 				}
 				ChatServerConnector conn = new ChatServerConnector(this, newClientSocket); // create a new thread for communication with the new client
 				conn.start(); // run the new thread
@@ -127,24 +171,6 @@ public class ChatServer {
 		}
 	}
 
-	public void addUsernameToMap(Socket socket, String username){
-		Message joinNotification;
-
-		synchronized(this){
-			if (clientUserMap.get(socket) == null){
-				clientUserMap.replace(socket, username);
-				System.out.printf("[system] client [%s] assigned username [%s]\n", socket.getPort(), username);
-				
-				joinNotification = new Message("JOIN", username, null, "joined the chat");
-				try {
-					this.sendToAllClients(joinNotification); // send message to all clients
-				} catch (Exception e) {
-					System.err.println("[system] there was a problem while sending the message to all clients");
-					e.printStackTrace(System.err);
-				}
-			}
-		}
-	}
 }
 
 class ChatServerConnector extends Thread {
@@ -198,9 +224,6 @@ class ChatServerConnector extends Thread {
 					e.printStackTrace(System.err);
 					continue;
 				}
-			}
-			if (message.getType().equals("LOGIN")){
-				this.server.addUsernameToMap(this.socket, message.getSender());
 			}
 			if (message.getType().equals("PRIVATE")){
 				this.server.privateSendToClient(message, this.socket);
