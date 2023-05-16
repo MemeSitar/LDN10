@@ -6,7 +6,6 @@ import java.security.*;
 import java.util.*;
 
 import java.io.FileInputStream;
-import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -15,8 +14,6 @@ public class ChatClient extends Thread
 {
 	protected int serverPort = 8888;
 	private String username;
-	private String passphrase;
-	private String keyStoreName;
 
 
 	public static void main(String[] args) throws Exception {
@@ -39,8 +36,6 @@ public class ChatClient extends Thread
 		DataInputStream in = null;
 		DataOutputStream out = null;
 		ChatClientMessageReceiver message_receiver = null;
-		this.keyStoreName = keyStoreName;
-		this.passphrase = passphrase;
 
 		// preberi datoteko s  certifikatom
 		KeyStore serverKeyStore = KeyStore.getInstance("JKS");
